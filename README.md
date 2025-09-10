@@ -1,4 +1,4 @@
-# uv-jupyter-kernel
+# uv-jupyter-register
 
 Register your [uv](https://github.com/astral-sh/uv) project environments as Jupyter kernels with a single command.  
 This makes your project’s environment available in JupyterLab, Jupyter Notebook, or VS Code without extra setup.
@@ -19,11 +19,11 @@ This makes your project’s environment available in JupyterLab, Jupyter Noteboo
 Clone the repo and put the script somewhere on your `$PATH` (e.g. `~/bin`):
 
 ```bash
-git clone https://github.com/YOURNAME/uv-jupyter-kernel.git
-cd uv-jupyter-kernel
-chmod +x uv-jupyter-kernel
+git clone https://github.com/YOURNAME/uv-jupyter-register.git
+cd uv-jupyter-register
+chmod +x uv-jupyter-register
 mkdir -p ~/bin
-cp uv-jupyter-kernel ~/bin/
+cp uv-jupyter-register ~/bin/
 ````
 
 Then make sure `~/bin` is on your `PATH`:
@@ -43,7 +43,7 @@ Restart your shell, and you’re ready to go.
 Run the command inside any uv-managed project folder (i.e. containing a `pyproject.toml`, `uv.lock`, or `.venv`):
 
 ```bash
-uv-jupyter-kernel
+uv-jupyter-register
 ```
 
 Example output:
@@ -70,10 +70,10 @@ Proceed? (y/n)
 
 ```bash
 # Register with default name
-uv-jupyter-kernel -y
+uv-jupyter-register -y
 
 # Register with a custom name
-uv-jupyter-kernel -y -n mykernel -d "My Project (uv)"
+uv-jupyter-register -y -n mykernel -d "My Project (uv)"
 ```
 
 ---
