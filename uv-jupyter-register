@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Register this project's uv environment as a Jupyter kernel.
+
+Usage:
+  uv-jupyter-register [-y] [-f] [-n NAME] [-d DISPLAY]
+
+Options:
+  -y            Non-interactive (assume "yes")
+  -f            Overwrite existing kernel with same name (--force)
+  -n NAME       Kernel name (default: uv-<folder_name>)
+  -d DISPLAY    Kernel display name (default: Python (uv - <folder_name>))
+EOF
+}
+
+YES=0
+FORCE=0
+KERNEL_NAME=""
+DISPLAY_NAME=""
+
+while getopts ":yfn:d:h" opt; do
+  case $opt in
+    y) YES=1 ;;
+    f) FORCE=1 ;;
+    n) KERNEL_NAME="$OPTARG" ;;
+    d) DISPLAY_NAME="$OPTARG" ;;
+    h|\?) usage; exit 0 ;;
+  esac
+done
+shift $((OPTIND-1))
+
+# --- basic checks ---
+command -v uv >/dev/null 2>&1 || { echo "Error: uv not found on PATH."; exit 1; }
+
+# Require some sign of a project so you don't pollute random dirs:
+if [[ ! -f "pyproject.toml" && ! -f "uv.lock" && ! -d ".venv" ]]; then
+  echo "Error: no pyproject.toml, uv.lock, or .venv found here. Run in a uv-managed project."
+  exit 1
+fi
+
+project_name=$(basename "$PWD")
+kernel_name=${KERNEL_NAME:-"uv-${project_name// /_}"}
+display_name=${DISPLAY_NAME:-"Python (uv - $project_name)"}
+
+# Make sure the environment has ipykernel (Jupyter itself is optional for registering)
+echo "▶ Ensuring ipykernel is present in this uv environment…"
+uv add -q ipykernel >/dev/null
+
+# Optional but handy: install jupyter in the project if you often launch from here
+# uv add -q jupyter >/dev/null
+
+# Confirm paths (for info only)
+uv_python_find=$(uv python find)
+echo "Registering Jupyter kernel:"
+echo "  Kernel name : $kernel_name"
+echo "  Display name: $display_name"
+echo "  Interpreter : $uv_python_find"
+
+if [[ $YES -eq 0 ]]; then
+  read -r -p "Proceed? (y/n) " answer
+  case "$answer" in
+    [Yy]* ) : ;;
+    * ) echo "Aborted."; exit 1 ;;
+  esac
+fi
+
+# Register the kernel using the project's interpreter via uv run (more robust than hard-coding the path)
+args=(python -m ipykernel install --user --name "$kernel_name" --display-name "$display_name")
+if [[ $FORCE -eq 1 ]]; then
+  args+=(--force)
+fi
+
+uv run -q "${args[@]}"
+
+echo "✅ Kernel registered."
