@@ -24,3 +24,64 @@ cd uv-jupyter-kernel
 chmod +x uv-jupyter-kernel
 mkdir -p ~/bin
 cp uv-jupyter-kernel ~/bin/
+````
+
+Then make sure `~/bin` is on your `PATH`:
+
+```bash
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+# or for zsh
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+```
+
+Restart your shell, and you’re ready to go.
+
+---
+
+## Usage
+
+Run the command inside any uv-managed project folder (i.e. containing a `pyproject.toml`, `uv.lock`, or `.venv`):
+
+```bash
+uv-jupyter-kernel
+```
+
+Example output:
+
+```
+Registering Jupyter kernel:
+  Kernel name : uv-myproject
+  Display name: Python (uv - myproject)
+  Interpreter : /…/python
+Proceed? (y/n)
+```
+
+### Options
+
+```text
+-y            Non-interactive (assume "yes")
+-f            Overwrite existing kernel with same name (--force)
+-n NAME       Kernel name (default: uv-<folder_name>)
+-d DISPLAY    Kernel display name (default: Python (uv - <folder_name>))
+-h            Show help
+```
+
+### Examples
+
+```bash
+# Register with default name
+uv-jupyter-kernel -y
+
+# Register with a custom name
+uv-jupyter-kernel -y -n mykernel -d "My Project (uv)"
+```
+
+---
+
+## How it works
+
+* Uses `uv run` to execute the project’s Python interpreter
+* Ensures `ipykernel` is installed
+* Registers a Jupyter kernel pointing to your uv environment
+
+Once registered, the kernel will appear in the JupyterLab / Notebook / VS Code kernel selector.
